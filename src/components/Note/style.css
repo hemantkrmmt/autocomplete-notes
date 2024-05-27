@@ -1,0 +1,27 @@
+#anchor{
+    cursor: pointer;
+    color: #2ab5c9;
+    text-decoration: none;
+    background-color: #444f51;
+    padding: 0px 5px
+}
+
+.note-container {
+    text-align: left;
+    position: relative;
+    width: 500px;
+    padding-bottom: 10px;
+}
+
+.note-container + .note-container {
+    border-top: 1px solid #3b3b3b;
+}
+
+.note-wrapper {
+    font-size: 16px;
+     width: 500px;
+     padding: 10px;
+     color: whitesmoke;
+     outline: none;
+}
+
