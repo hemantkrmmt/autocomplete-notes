@@ -5,24 +5,40 @@ import "./style.css";
 function Note({ notes, note, setNote }) {
   const divRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [searchText, setSearchText] = useState(false);
 
   const [divText, setDivText] = useState("");
 
-  const checkForReference = function (e) {
-    const textString = divRef.current.innerHTML;
+  const checkForReference = function () {
+    const textString = divRef.current.innerText;
     const text = textString.trim();
     if (
-      text.indexOf("&lt;&gt;") !== -1 &&
-      text.lastIndexOf("&lt;&gt;") === text.length - 8
+      text.indexOf("<>") !== -1
     ) {
+      if(text.lastIndexOf("<>") === text.length - 2 ){
       setShowPopup(true);
-    } else {
-      if (showPopup) setShowPopup(false);
+     
+      }
+      const lastIndex = text.lastIndexOf("<>");
+      setSearchText(text.slice(lastIndex+2).trim());
     }
+    
   };
+  const replaceLast = (str,searchText,replaceText)=>{
+    const lastIndex = str.lastIndexOf(searchText);
+    const firstStr =  str.slice(0,lastIndex);
+    const updatedStr = replaceText
+    return firstStr+updatedStr;
+  }
+
   const handleSelectedText = (selectedText) => {
-    const htmlAnchor = `<a contentEditable="false" id="anchor" href="#${selectedText.id}" onclick="(e)=>{e.preventDefault()}" >${selectedText.value}</a>`;
-    const tempNoteText = divRef.current.innerHTML + "  " + htmlAnchor;
+    const htmlAnchor = `<span contentEditable = "false">
+                          <> <a id="anchor" href="#${selectedText.id}" onclick="(e)=>{e.preventDefault()}" >
+                          ${selectedText.value}
+                          </a>
+                        </span>`;
+    let tempStr = divRef.current.innerHTML;
+    const tempNoteText = replaceLast(tempStr,"&lt;&gt;", htmlAnchor);
     setNote({
       ...note,
       focus: false,
@@ -35,13 +51,16 @@ function Note({ notes, note, setNote }) {
     setShowPopup(false);
   };
 
-  const handleBlur = () => {
+  const handleBlur = (e) => {
     if (divRef.current.innerHTML !== note.value) {
       setNote({
         ...note,
         focus: false,
         value: divRef.current.innerHTML,
       });
+    }
+    if(divRef.current !== e.target){
+      setShowPopup(false);
     }
   };
 
@@ -76,7 +95,7 @@ function Note({ notes, note, setNote }) {
       {showPopup && (
         <Popup
           key={"focus" + note.id}
-          list={notes.filter((note1) => note1.id !== note.id)}
+          list={notes.filter((note1) =>  (note1.id !== note.id && note1.value.indexOf(searchText)!== -1))}
           handleSelectedText={handleSelectedText}
           dangerouslySetInnerHTML={note.value}
         />
